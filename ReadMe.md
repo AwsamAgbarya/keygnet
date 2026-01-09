@@ -53,7 +53,7 @@ python ./bop_validate.py --dataset-folder ./data/BOP/issi/ --split train
 Simply run the command inside keygnet environment
 ```
 conda activate keygnet
-python train.py --batch_size 8 --keypointsNo 12 --data_root "./data/BOP/issi" --ckpt_root "./data/checkpoints" --epochs 100 logs/issi/radii
+python train.py --batch_size 8 --keypointsNo 12 --data_root "./data/BOP/issi" --epochs 100 logs/issi/radii
 ```
 You can check the train.py file for more arguments and customizations
 

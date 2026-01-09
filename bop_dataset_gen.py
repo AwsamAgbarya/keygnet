@@ -31,7 +31,7 @@ try:
     from PIL import Image
     import imageio
 except ImportError as e:
-    print(f"Warning: Missing dependency {e}. Install with: pip install trimesh pyrender opencv-python imageio pillow")
+    print(f"Warning: Missing dependency {e}. Install with: pip install trimesh pyrender opencv-python imageio pillow");raise
 
 
 class BOPDatasetGenerator:

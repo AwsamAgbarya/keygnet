@@ -2,7 +2,8 @@ import torch
 from torch.autograd import Variable
 from torch import autograd
 from tensorboardX import SummaryWriter
-import open3d as o3d
+# import open3d as o3d
+from plyfile import PlyData
 import numpy as np
 
 from model import KeyGNet
@@ -327,23 +328,44 @@ if __name__ == "__main__":
     coor_dims = np.loadtxt(os.path.join(args.data_root,'split','coor_dims.txt'))
     #load cad models and generate pc
     ## use models_reconst for tless
-    cad_models_path = os.path.join(args.data_root,"models_reconst")
+    cad_models_path = os.path.join(args.data_root, "models_reconst")
+    pts_list = []
+    colors_list = []
+
     for filename in os.listdir(cad_models_path):
         if filename.endswith(".ply"):
-            cad_model = o3d.io.read_point_cloud(os.path.join(cad_models_path,filename))
-            pts = np.asarray(cad_model.points)
-            colors = np.asarray(cad_model.colors)
-            #print(colors.shape)
-            #cad_models.append(cad_model)
-            idx=np.random.choice(np.arange(pts.shape[0]), args.num_points, replace=False)
+            path = os.path.join(cad_models_path, filename)
+
+            # read PLY as point cloud
+            plydata = PlyData.read(path)
+            vertex = plydata['vertex'].data  # structured array with fields x,y,z,r,g,b etc. [web:85][web:92]
+
+            pts = np.stack([vertex['x'], vertex['y'], vertex['z']], axis=-1)  # (N, 3)
+            # assume colors are stored as r,g,b in [0,255]; normalize to [0,1] if needed
+            if {'red', 'green', 'blue'}.issubset(vertex.dtype.names):
+                colors = np.stack(
+                    [vertex['red'], vertex['green'], vertex['blue']],
+                    axis=-1
+                ).astype(np.float32) / 255.0
+            elif {'r', 'g', 'b'}.issubset(vertex.dtype.names):
+                colors = np.stack(
+                    [vertex['r'], vertex['g'], vertex['b']],
+                    axis=-1
+                ).astype(np.float32) / 255.0
+            else:
+                raise ValueError(f"No RGB color fields found in {path}")
+
+            idx = np.random.choice(np.arange(pts.shape[0]), args.num_points, replace=False)
             pts = pts[idx]
-            for i in range(3):
-                #print(i)
-                pts[:,i] -= np.mean(pts[:,i])
-                pts[:,i] /=coor_dims[i]
             colors = colors[idx]
+
+            for i in range(3):
+                pts[:, i] -= np.mean(pts[:, i])
+                pts[:, i] /= coor_dims[i]
+
             pts_list.append(pts)
             colors_list.append(colors)
+
     pts_list = np.array(pts_list)
     colors_list = np.array(colors_list)
     #concatenate color and pts 
