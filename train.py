@@ -197,7 +197,7 @@ if __name__ == "__main__":
     print(log_dir)
     # create log root
     if not os.path.exists(log_dir):
-        os.mkdir(log_dir)
+        os.makedirs(log_dir, exist_ok=True)
     
     if args.cuda and torch.cuda.is_available():
         print("Using GPU!")
@@ -224,7 +224,7 @@ if __name__ == "__main__":
     tblogger = SummaryWriter(logdir=os.path.join(log_dir,'tblog'))
 
     model.train()
-    train_loader = torch.utils.data.DataLoader(BOPDataset(args.data_root,'train_primesense',
+    train_loader = torch.utils.data.DataLoader(BOPDataset(args.data_root,'train',
                                                           min_visible_points=args.min_vis_points,
                                                           points_count_net = args.num_points),
                                                batch_size=args.batch_size,shuffle=False)
@@ -234,6 +234,8 @@ if __name__ == "__main__":
                                               batch_size=args.test_batch_size,shuffle=False)
     train_iteration = 0
     test_iteration = 0
+    patience = 10
+    epochs_no_improve = 0
     best_test_loss = np.inf
     save_name = "ckpt.pth.tar"
     scheduler  = torch.optim.lr_scheduler.ReduceLROnPlateau(optim, verbose=True)
@@ -305,11 +307,15 @@ if __name__ == "__main__":
                 test_loss = np.mean(np.array(test_losses))
                 scheduler.step(test_loss)
 
-                if test_loss<best_test_loss:
-                    best_test_loss=test_loss
-                    #replace best model
-                    shutil.copy(os.path.join(log_dir, save_name),
-                            os.path.join(log_dir, 'model_best.pth.tar'))
+                if test_loss < best_test_loss:
+                    best_test_loss = test_loss
+                    epochs_no_improve = 0
+                    shutil.copy(..., os.path.join(log_dir, 'model_best.pth.tar'))
+                else:
+                    epochs_no_improve += 5
+                if epochs_no_improve >= patience:
+                    print(f"Early stopping at epoch {epoch}")
+                    break
     print(".....Saving keypoints to file",os.path.join(log_dir,'keypoints.npy'),".....")
     #load best model
     checkpoint = torch.load(os.path.join(log_dir,'model_best.pth.tar'))

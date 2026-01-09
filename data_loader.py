@@ -113,7 +113,7 @@ class BOPDataset(Dataset):
         cycle, scene_objidx = id.split('/')
         scene, objidx = scene_objidx.split('_')
         if self.set == 'train':
-            rgb = np.array(Image.open(os.path.join(self.cycle_path,cycle,'rgb',scene+'.jpg')))
+            rgb = np.array(Image.open(os.path.join(self.cycle_path,cycle,'rgb',scene+'.png')))
         else:
             rgb = np.array(Image.open(os.path.join(self.cycle_path,cycle,'rgb',scene+'.png')))
         rgb = rgb.astype('float64')

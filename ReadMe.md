@@ -1,38 +1,67 @@
-# KeyGNet: Learning Better Keypoints for Multi-Object 6DoF Pose Estimation
-![teaser](./doc/keygnet.gif "keypoints optimized by KeyGNet")
-> [Learning Better Keypoints for Multi-Object 6DoF Pose Estimation](https://arxiv.org/abs/2308.07827 "arxiv")
-> Yangzheng Wu, Michael Greenspan
-> WACV 2024
-## Preliminary
-### Dependencies
-Install PyTorch prior to other python packages:
-Install the rest dependencies by using conda:
+# Installation
+
+Conda environment
 ```
-conda env create -f environment.yml
+conda create -n keygnet python=3.10 -y
 conda activate keygnet
 ```
-### Datasets
-Download BOP core datasets from [BOP](https://bop.felk.cvut.cz/datasets/) website.
 
-## Pre-trained keypoints for testing
-Download the pre-trained keypoints from 'keypoints' folder and unzip it into the root of each dataset.
+Install appropriate torch version for your cuda version at /usr/local/cuda
+The original keygnet used 11.8, however due to incompatibility with my distro, I used cuda 12.4 drivers with torch cuda12.1 packages
 
-## Training
-### Train KeyGNet
 ```
-python train.py --dataset dname --batch_size 32 --keypointsNo 3 --lr 1e-3 --data_root "PathToData" --ckpt_root "PathToLogs"
+python -m pip install --index-url https://download.pytorch.org/whl/cu121 torch torchvision torchaudio
 ```
 
-## Testing
-Test with the keyGNet keypoints by using [RCVPose](https://github.com/aaronWool/rcvpose), [PVNet](https://github.com/zju3dv/clean-pvnet), and [PVN3D](https://github.com/ethnhe/PVN3D) github repositories.
-
-## Citation
-If you find our work useful in your research, please consider citing:
-```bibtex
-@inproceedings{wu2024keygnet,
-  title={Learning Better Keypoints for Multi-Object 6DoF Pose Estimation},
-  author={Wu, Yangzheng and Greenspan, Michael},
-  booktitle={WACV},
-  year={2024}
-}
+Install other packages
 ```
+conda install -c conda-forge numpy scipy matplotlib opencv scikit-image scikit-learn pyyaml tqdm tensorboard
+python -m pip install albumentations shapely plyfile tensorboardx open3d
+```
+
+For monitoring unfortunately tensorboard conflicts with open3d as such you need a separate environment"
+```
+conda create -n tbonly python=3.10 -y
+conda activate tbonly
+python -m pip install tensorboard
+```
+# Creating the dataset
+
+First you need to be inside the keygnet virtual environment
+```
+conda activate keygnet
+```
+
+Then you need to have a ply Stanford triangle mesh inside keygnet/object_files directory
+```
+mkdir ./object_files
+mv YOUR_FILE ./object_files/
+```
+
+then proceed to create a BOP style dataset by running (check the file for more customizations)
+```
+python ./bop_dataset_gen.py --ply-file ./object_files/active_interface.ply --output-dir ./data/BOP/issi --num-frames 1000 --angle-range-deg 30
+```
+
+you can also validate this data via the validation file
+```
+python ./bop_validate.py --dataset-folder ./data/BOP/issi/ --split train
+```
+
+# Begin training
+
+Simply run the command inside keygnet environment
+```
+conda activate keygnet
+python train.py --batch_size 8 --keypointsNo 12 --data_root "./data/BOP/issi" --ckpt_root "./data/checkpoints" --epochs 100 logs/issi/radii
+```
+You can check the train.py file for more arguments and customizations
+
+to monitor the file, open a second terminal and:
+
+Then whenever youre training keyGNet you can monitor the training via
+```
+conda activate tbonly
+tensorboard --logdir ./logs --port 6006
+```
+you can then head to your browser at http://localhost:6006/ to check the training progress

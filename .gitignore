@@ -1,2 +1,4 @@
 logs/
 __pycache__/
+object_files/
+data/
