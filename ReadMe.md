@@ -16,15 +16,10 @@ python -m pip install --index-url https://download.pytorch.org/whl/cu121 torch t
 Install other packages
 ```
 conda install -c conda-forge numpy scipy matplotlib opencv scikit-image scikit-learn pyyaml tqdm tensorboard
-python -m pip install albumentations shapely plyfile tensorboardx open3d
+python -m pip install albumentations shapely plyfile tensorboardx
 ```
-
-For monitoring unfortunately tensorboard conflicts with open3d as such you need a separate environment"
-```
-conda create -n tbonly python=3.10 -y
-conda activate tbonly
-python -m pip install tensorboard
-```
+Previously (and the original code) used open3d for rendering ply files, i switched it to plyfile implementation so it doesnt have libgl conflicts on ssh clusters.
+If you want to keep the open3d implementation, please look at the previous commits where train.py and dataloader.py changed to plyfile.
 # Creating the dataset
 
 First you need to be inside the keygnet virtual environment
