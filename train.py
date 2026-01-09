@@ -292,7 +292,7 @@ if __name__ == "__main__":
                         desc='Test for epoch %d' % epoch,
                         ncols=80,
                         leave=False):
-                    pc = torch.permute(pc, (0, 2, 1))
+                    pc = pc.permute(0, 2, 1)
                     pc = pc.to(device)
                     est_kpts = model(pc)
                     loss_dis = cal_loss_dispersion(est_kpts,args.gamma)
@@ -373,7 +373,7 @@ if __name__ == "__main__":
     #concatenate color and pts 
     pts_list = np.concatenate((pts_list,colors_list),axis=2)
     pts_list = torch.from_numpy(pts_list).float().cuda(device)
-    pts_list = torch.permute(pts_list, (0, 2, 1))
+    pts_list = pts_list.permute(0, 2, 1)
     print(pts_list.shape)
     est_kpts = model(pts_list)
     #unnormalize
