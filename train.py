@@ -253,7 +253,7 @@ if __name__ == "__main__":
                 desc='Train epoch=%d' % epoch,
                 ncols=80,
                 leave=False):
-            pc = torch.permute(pc, (0, 2, 1))
+            pc = pc.permute(0, 2, 1)
             pc = pc.to(device)
             #pc = torch.rand(32,6,1024).to(device)
             #print(pc.shape)
