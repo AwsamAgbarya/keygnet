@@ -1,0 +1,18 @@
+name: keygnet
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pyyaml
+  - scikit-image
+  - numpy
+  - tensorboard
+  - opencv
+  - scipy
+  - scikit-learn
+  - matplotlib
+  - tqdm
+  - tensorboardx
+  - open3d
+prefix: /home/awsam/miniconda/envs/keygnet

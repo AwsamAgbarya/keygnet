@@ -241,6 +241,7 @@ if __name__ == "__main__":
     save_name = "ckpt.pth.tar"
     scheduler  = torch.optim.lr_scheduler.ReduceLROnPlateau(optim, verbose=True)
     for epoch in range(args.epochs):
+        print(f"Epoch: {epoch}")
         if epoch<=50:
             alpha = .7
             beta = .3
@@ -253,6 +254,7 @@ if __name__ == "__main__":
                 desc='Train epoch=%d' % epoch,
                 ncols=80,
                 leave=False):
+            print(f'Batch idx:{batch_idx}')
             pc = pc.permute(0, 2, 1)
             pc = pc.to(device)
             #pc = torch.rand(32,6,1024).to(device)
