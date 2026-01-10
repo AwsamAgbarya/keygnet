@@ -313,7 +313,8 @@ if __name__ == "__main__":
                 if test_loss < best_test_loss:
                     best_test_loss = test_loss
                     epochs_no_improve = 0
-                    shutil.copy(..., os.path.join(log_dir, 'model_best.pth.tar'))
+                    current_ckpt = os.path.join(log_dir, 'ckpt.pth.tar')
+                    shutil.copy(current_ckpt, os.path.join(log_dir, 'model_best.pth.tar'))
                 else:
                     epochs_no_improve += 5
                 if epochs_no_improve >= patience:
